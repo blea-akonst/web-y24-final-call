@@ -1,0 +1,25 @@
+user: {
+    username: varchar(255),
+    fullName: varchar(255),
+    birthDate: varchar(255)
+}
+
+good: {
+    id: pk,
+    name: varchar(255),
+    price: int,
+    category: varchar(255)
+}
+
+order: {
+    id: pk,
+    user_id: fk(user),
+    address: varchar(255)
+}
+
+order_unit: {
+    id: pk,
+    good_id: fk(good),
+    order_id: fk(order),
+    quantity: int
+}
