@@ -7,20 +7,20 @@
             <div class="navlogo">
 
             </div>
-            <img class="mr-2" src="@/assets/navlogo.svg" height="40" alt="Shop Logo" />
+            <img class="mr-2" src="@/assets/navlogo.svg" height="40" alt="Shop Logo"/>
           </template>
           <template #item="{ label, item, props, root }">
             <router-link v-if="item.route" v-slot="routerProps" :to="item.route" custom>
               <a :href="routerProps.href" v-bind="props.action">
-                <span v-bind="props.icon" />
+                <span v-bind="props.icon"/>
                 <span v-bind="props.label">{{ label }}</span>
               </a>
             </router-link>
             <a v-else :href="item.url" :target="item.target" v-bind="props.action">
-              <span v-bind="props.icon" />
+              <span v-bind="props.icon"/>
               <span v-bind="props.label">{{ label }}</span>
               <span v-if="!item.command" :class="[root ? 'pi pi-fw pi-angle-down' : 'pi pi-fw pi-angle-right']"
-                v-bind="props.submenuicon" />
+                    v-bind="props.submenuicon"/>
             </a>
           </template>
           <template #end>
@@ -32,25 +32,25 @@
       </div>
     </div>
     <div class="body">
-      <RouterView />
+      <RouterView/>
     </div>
   </div>
 </template>
 
 <script>
-import { RouterView } from 'vue-router';
+import {RouterView} from 'vue-router';
 
 import Menubar from 'primevue/menubar';
 import Button from 'primevue/button';
 
-import SignInComponent from '@/components/SignInComponent.vue';
+import SignInComponent from '@/components/SignIn.vue';
 
-import { mapStores } from 'pinia';
+import {mapStores} from 'pinia';
 
-import { useUserStore } from '@/store/user';
+import {useUserStore} from '@/store/user';
 
 export default {
-  components: { RouterView, Menubar, Button },
+  components: {RouterView, Menubar, Button},
   computed: {
     ...mapStores(useUserStore)
   },
@@ -79,6 +79,12 @@ export default {
           icon: 'pi pi-fw pi-sign-in',
           visible: () => !this.userStore.authenticated,
           command: () => this.openSignInDialog()
+        },
+        {
+          label: 'Sign Out',
+          icon: 'pi pi-fw pi-sign-out',
+          visible: () => this.userStore.authenticated,
+          command: () => this.signOut()
         }
       ]
     }
@@ -97,8 +103,12 @@ export default {
           },
           modal: true
         },
-        data: { orderItems: this.userStore.cart.goodsList }
+        data: {orderItems: this.userStore.cart.goodsList}
       })
+    },
+    signOut() {
+      document.cookie = 'auth_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      this.userStore.get();
     }
   }
 }

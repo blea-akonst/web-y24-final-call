@@ -7,6 +7,7 @@ import { Request } from 'express';
 import * as bcrypt from "bcrypt";
 import { User } from 'src/entities/user.entity';
 import { UserLoginDto } from 'src/dtos/user.login.dto';
+import {UserProfileDto} from "../dtos/user.profile.dto";
 
 @Injectable()
 export class AuthService {
@@ -45,18 +46,18 @@ export class AuthService {
     const payload = { username: user.username, sub: user.id };
 
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload)
     };
   }
 
   async getUserFromJwtPayload(payload: { username: string, sub: string }): Promise<User> {
-    return this.usersService.findOne(payload.sub);
+    return await this.usersService.findOne(payload.sub);
   }
 
   async getUserFromRequest(req: Request) {
     const token = req.cookies.auth_token;
     const payload = this.jwtService.decode(token) as any;
     
-    return this.getUserFromJwtPayload(payload);
+    return await this.getUserFromJwtPayload(payload);
   }
 }

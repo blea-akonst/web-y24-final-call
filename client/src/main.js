@@ -14,6 +14,7 @@ import DialogService from "primevue/dialogservice";
 import { useUserStore } from "./store/user";
 import { useGoodsStore } from "./store/goods";
 import VueAxios from "vue-axios";
+import VueCookies from "vue3-cookies";
 
 export const app = createApp(App);
 
@@ -32,6 +33,7 @@ axios.defaults.baseURL = "http://localhost:3000/";
 axios.defaults.withCredentials = true;
 
 app.use(VueAxios, axios);
+app.use(VueCookies);
 
 app.use(store);
 app.use(router);

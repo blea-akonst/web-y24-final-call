@@ -9,7 +9,7 @@ export class User {
     id: string;
 
     @ApiProperty()
-    @Column({ length: 255 })
+    @Column({ length: 255, unique:true })
     username: string;
 
     @ApiProperty()

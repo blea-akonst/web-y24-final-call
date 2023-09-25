@@ -18,14 +18,10 @@ export const useUserStore = defineStore("user", {
   },
   actions: {
     async login(username, password) {
-      try {
-        const response = await this.$http.post("/auth/login", {
-          username,
-          password,
-        });
-      } catch (error) {
-        console.error("Error during login:", error);
-      }
+      return await this.$http.post("/auth/login", {
+        username,
+        password
+      })
     },
     async get() {
       return this.$http
