@@ -7,21 +7,23 @@ import { Order } from '../entities/order.entity';
 import { OrderCreateDto } from 'src/dtos/order.create.dto';
 import { GoodsService } from 'src/goods/goods.service';
 import { OrderUnit } from 'src/entities/order_unit.entity';
+import {OrdersGateway} from "./orders.gateway";
 
 @Injectable()
 export class OrdersService {
     constructor(
         @InjectRepository(Order)
-        private readonly orderRepository: Repository<Order>,
+        private readonly ordersRepository: Repository<Order>,
 
         @InjectRepository(OrderUnit)
         private readonly orderUnitRepository: Repository<OrderUnit>,
 
         private readonly goodsService: GoodsService,
+        private readonly ordersGateway: OrdersGateway
     ) {}
 
     async findAll(auth0UserId: string): Promise<Order[]> {
-        return this.orderRepository.find({ where: {
+        return this.ordersRepository.find({ where: {
                 auth0UserId: auth0UserId
         },
         relations: ['orderUnits', 'orderUnits.good']
@@ -29,7 +31,7 @@ export class OrdersService {
     }
 
     async findOne(id: string): Promise<Order> {
-        return this.orderRepository.findOne({ where: { id: String(id) }, relations: ['orderUnits', 'orderUnits.good'] });
+        return this.ordersRepository.findOne({ where: { id: String(id) }, relations: ['orderUnits', 'orderUnits.good'] });
     }
 
     async create(auth0UserId: string, dto: OrderCreateDto): Promise<Order> {
@@ -37,12 +39,12 @@ export class OrdersService {
             throw new Error('User not found');
         }
 
-        const order = this.orderRepository.create({
+        const order = this.ordersRepository.create({
             auth0UserId,
             address: dto.address
         });
 
-        const savedOrder = await this.orderRepository.save(order);
+        const savedOrder = await this.ordersRepository.save(order);
 
         for (const orderGoodId of dto.orderGoodIds) {
             const good = await this.goodsService.findOne(orderGoodId);
@@ -58,14 +60,20 @@ export class OrdersService {
             await this.orderUnitRepository.save(orderUnit);
         }
 
+        this.ordersGateway.orderCreated({
+            orderId: savedOrder.id,
+            userId: auth0UserId,
+            address: savedOrder.address
+        });
+
         return savedOrder;
     }
 
     async update(id: string, order: Order): Promise<void> {
-        await this.orderRepository.update(id, order);
+        await this.ordersRepository.update(id, order);
     }
 
     async remove(id: string): Promise<void> {
-        await this.orderRepository.delete(id);
+        await this.ordersRepository.delete(id);
     }
 }
