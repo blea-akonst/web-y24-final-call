@@ -1,27 +1,62 @@
+import helmet from 'helmet';
+import * as nocache from 'nocache';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-import * as cookieParser from 'cookie-parser';
+function checkEnvironment(configService: ConfigService) {
+  const requiredEnvVars = [
+    'PORT',
+    'ISSUER_BASE_URL',
+    'AUDIENCE',
+    'CLIENT_ORIGIN_URL',
+  ];
+
+  requiredEnvVars.forEach((envVar) => {
+    if (!configService.get<string>(envVar)) {
+      throw Error(`Undefined environment variable: ${envVar}`);
+    }
+  });
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(cookieParser());
 
-  const config = new DocumentBuilder()
-    .setTitle('Web Shop API')
-    .setVersion('1.0')
-    .build();
-    
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-  
+  const configService = app.get<ConfigService>(ConfigService);
+  checkEnvironment(configService);
+
+  app.setGlobalPrefix('api');
+
+  app.use(nocache());
+
   app.enableCors({
-    origin: 'http://localhost:8080',
+    origin: configService.get<string>('CLIENT_ORIGIN_URL'),
     credentials: true
   });
 
-  await app.listen(3000);
+  app.use(
+      helmet({
+        hsts: { maxAge: 31536000 },
+        frameguard: { action: 'deny' },
+        contentSecurityPolicy: {
+          directives: {
+            'default-src': ["'self'"],
+            'frame-ancestors': ["'none'"],
+          },
+        },
+      }),
+  );
 
+  const config = new DocumentBuilder()
+      .setTitle('Web Shop API')
+      .setVersion('1.0')
+      .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
+  await app.listen(configService.get<string>('PORT'));
 }
+
 bootstrap();

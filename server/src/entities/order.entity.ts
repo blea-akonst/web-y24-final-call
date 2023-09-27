@@ -1,5 +1,4 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, PrimaryColumn, Generated } from 'typeorm';
-import { User } from './user.entity';
 import { OrderUnit } from './order_unit.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -10,11 +9,8 @@ export class Order {
     id: string;
 
     @ApiProperty()
-    @ManyToOne(() => User, user => user.orders)
-    user: () => User
-
     @Column()
-    userId: string;
+    auth0UserId: string;
 
     @ApiProperty()
     @Column({ length: 255 })

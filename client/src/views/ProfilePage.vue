@@ -8,12 +8,12 @@
                 <template #content>
                     <div class="flex flex-column gap-2 align-items-center justify-content-center my-6">
                         <div class="flex flex-row align-items-center justify-content-between w-full">
-                            <b>Full Name</b>
-                            <span>{{ userStore.user.fullName }}</span>
+                            <b>Nickname</b>
+                            <span>{{ userStore.user.nickname }}</span>
                         </div>
                         <div class="flex flex-row align-items-center justify-content-between w-full">
-                            <b>Birth Date</b>
-                            <span>{{ userStore.user.birthDate }}</span>
+                            <b>Email</b>
+                            <span>{{ userStore.user.email }}</span>
                         </div>
                     </div>
                 </template>

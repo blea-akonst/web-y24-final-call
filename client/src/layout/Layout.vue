@@ -5,7 +5,6 @@
         <Menubar :model="menubarItems">
           <template #start>
             <div class="navlogo">
-
             </div>
             <img class="mr-2" src="@/assets/navlogo.svg" height="40" alt="Shop Logo"/>
           </template>
@@ -25,7 +24,7 @@
           </template>
           <template #end>
             <div v-if="userStore.user != null" class="mr-2">
-              <span>You're logged in as {{ userStore.user.username }}</span>
+              <span>You're logged in as {{ userStore.user.nickname }}</span>
             </div>
           </template>
         </Menubar>
@@ -78,7 +77,7 @@ export default {
           label: 'Sign In',
           icon: 'pi pi-fw pi-sign-in',
           visible: () => !this.userStore.authenticated,
-          command: () => this.openSignInDialog()
+          command: () => this.signIn()
         },
         {
           label: 'Sign Out',
@@ -90,25 +89,25 @@ export default {
     }
   },
   methods: {
-    openSignInDialog() {
-      this.$dialog.open(SignInComponent, {
-        props: {
-          header: 'Sign In',
-          style: {
-            width: '50vw',
-          },
-          breakpoints: {
-            '960px': '75vw',
-            '640px': '90vw'
-          },
-          modal: true
-        },
-        data: {orderItems: this.userStore.cart.goodsList}
-      })
+    signIn() {
+      this.userStore.login();
+      // this.$dialog.open(SignInComponent, {
+      //   props: {
+      //     header: 'Sign In',
+      //     style: {
+      //       width: '50vw',
+      //     },
+      //     breakpoints: {
+      //       '960px': '75vw',
+      //       '640px': '90vw'
+      //     },
+      //     modal: true
+      //   },
+      //   data: {orderItems: this.userStore.cart.goodsList}
+      // })
     },
     signOut() {
-      document.cookie = 'auth_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-      this.userStore.get();
+      this.userStore.logout();
     }
   }
 }

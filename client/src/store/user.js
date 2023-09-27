@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
-import { isEqual } from "lodash";
+
+import {auth0} from "@/main";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
-    user: JSON.parse(localStorage.getItem("userState") || null),
+    user: auth0.user || null,
     cart: JSON.parse(
       localStorage.getItem("cartState") ||
         JSON.stringify({
@@ -17,28 +18,12 @@ export const useUserStore = defineStore("user", {
     },
   },
   actions: {
-    async login(username, password) {
-      return await this.$http.post("/auth/login", {
-        username,
-        password
-      })
+    async login() {
+      auth0.loginWithPopup();
     },
-    async get() {
-      return this.$http
-        .get("/auth/profile")
-        .then((resp) => {
-          if (!this.user || !isEqual(this.user, resp.data)) {
-            this.user = resp.data;
-            localStorage.setItem("userState", JSON.stringify(resp.data));
-          }
-          return resp.data;
-        })
-        .catch(() => {
-          this.user = null;
-          localStorage.setItem("userState", null);
-        });
+    async logout() {
+      auth0.logout({ logoutParams: { returnTo: window.location.origin } });
     },
-
     async clearCart() {
       this.cart.goodsList = [];
       localStorage.setItem("cart", JSON.stringify(this.cart));

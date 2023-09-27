@@ -1,5 +1,6 @@
 import { createApp, markRaw } from "vue";
 import { createPinia } from "pinia";
+import { createAuth0 } from '@auth0/auth0-vue';
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
@@ -19,6 +20,14 @@ import VueCookies from "vue3-cookies";
 export const app = createApp(App);
 
 const pinia = createPinia();
+export const auth0 = createAuth0({
+    domain: process.env.VUE_APP_AUTH0_DOMAIN,
+    clientId: process.env.VUE_APP_AUTH0_CLIENT_ID,
+    authorizationParams: {
+        audience: process.env.VUE_APP_AUTH0_AUDIENCE,
+        redirect_uri: window.location.origin
+    }
+});
 
 pinia.use(({ store }) => {
   store.$http = axios;
@@ -26,10 +35,11 @@ pinia.use(({ store }) => {
 });
 app.use(pinia);
 
-const user = useUserStore();
+app.use(auth0);
+
 const goods = useGoodsStore();
 
-axios.defaults.baseURL = "http://localhost:3000/";
+axios.defaults.baseURL = process.env.VUE_APP_AXIOS_BASE_URL;
 axios.defaults.withCredentials = true;
 
 app.use(VueAxios, axios);
@@ -42,7 +52,6 @@ app.use(PrimeVue);
 app.use(ToastService);
 app.use(DialogService);
 
-user.get();
 goods.getGoods();
 
 app.mount("#app");
